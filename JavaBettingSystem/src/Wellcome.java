@@ -12,23 +12,24 @@ import static javafx.beans.binding.Bindings.select;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 /**
  *
  * @author bozhidar
  */
 public class Wellcome extends javax.swing.JFrame {
-String testString = "Please enter the following details";
+
+    String testString = "Please enter the following details";
+
     /**
      * Creates new form Wellcome
      */
     public Wellcome() {
+        this.setLocationRelativeTo(this);
+        
         initComponents();
-        
-        
-    }
+        this.reporButton.setVisible(false);
 
-    
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -48,6 +49,7 @@ String testString = "Please enter the following details";
         passwordLabel = new javax.swing.JLabel();
         password = new javax.swing.JPasswordField();
         errorLabel = new javax.swing.JLabel();
+        reporButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -63,6 +65,11 @@ String testString = "Please enter the following details";
 
         loginButton.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         loginButton.setText("Login");
+        loginButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                loginButtonMouseClicked(evt);
+            }
+        });
         loginButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 loginButtonActionPerformed(evt);
@@ -84,10 +91,21 @@ String testString = "Please enter the following details";
         errorLabel.setEnabled(false);
         errorLabel.setFocusable(false);
 
+        reporButton.setText("Report Problem");
+        reporButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                reporButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(182, 182, 182)
+                .addComponent(reporButton)
+                .addContainerGap(191, Short.MAX_VALUE))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
@@ -98,21 +116,20 @@ String testString = "Please enter the following details";
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(81, 81, 81)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(usernameLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 85, Short.MAX_VALUE)
+                            .addComponent(usernameLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(passwordLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(18, 18, 18)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(username)
                             .addComponent(password, javax.swing.GroupLayout.DEFAULT_SIZE, 143, Short.MAX_VALUE))
                         .addGap(73, 73, 73))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(21, 21, 21)
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(errorLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 235, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(153, 153, 153))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(errorLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -130,11 +147,13 @@ String testString = "Please enter the following details";
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(passwordLabel)
                     .addComponent(password, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(60, 60, 60)
+                .addGap(17, 17, 17)
+                .addComponent(reporButton)
+                .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(exitButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(loginButton, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(21, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -156,39 +175,41 @@ String testString = "Please enter the following details";
     }//GEN-LAST:event_usernameActionPerformed
 
     private void loginButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginButtonActionPerformed
-        String passText = new String(this.password.getPassword());
-        
-        user user1 = new user();
-        
-    try {
-        this.errorLabel.setText(user1.validateUSer(this.username.getText(), passText));
-    } catch (SQLException ex) {
-        Logger.getLogger(Wellcome.class.getName()).log(Level.SEVERE, null, ex);
-    }
-    try {
-        if(user1.validateUSer(this.username.getText(), passText).equals("User validated") ){
-            Main main = null;
-            try {
-                main = new Main();
-                main.setVisible(true);
+        String passText = new String(this.password.getPassword());          
+        try {  
+             System.out.println("444444");
+             this.errorLabel.setText(""+user.validateUSer(this.username.getText(), passText));
+             if(this.errorLabel.toString() != ""){
+                 this.reporButton.setVisible(true);
+             }
+            
+            if (user.validateUSer(this.username.getText(), passText).equals("User validated")) {               
+                System.out.println("if validateUSer .equasl User validate");
+                if(user.getUsername().equals("admin")){
+                adminPanel a1 =new adminPanel();
+                a1.setVisible(true);
                 this.setVisible(false);
-            } catch (SQLException ex) {
-                Logger.getLogger(Wellcome.class.getName()).log(Level.SEVERE, null, ex);
+                user.closeConnecton();
+                
             }
-        }
-    } catch (SQLException ex) {
-        Logger.getLogger(Wellcome.class.getName()).log(Level.SEVERE, null, ex);
-    }
-        try {
-            //user user = new user(this.username.getText(),passText);
-            user.getAllUsersDetails();
+                else{
+                Main main = new Main();    
+                main.setVisible(true);
+                this.setVisible(false);   
+                user.closeConnecton();
+                }
+            }
+            
+               
+            user.closeConnecton();
+            
+
         } catch (SQLException ex) {
             Logger.getLogger(Wellcome.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        
-        
-        
+     
+
     }//GEN-LAST:event_loginButtonActionPerformed
 
     private void exitButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitButton1ActionPerformed
@@ -200,14 +221,27 @@ String testString = "Please enter the following details";
 
     }//GEN-LAST:event_exitButton1ActionPerformed
 
+    private void loginButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_loginButtonMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_loginButtonMouseClicked
+
+    private void reporButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reporButtonActionPerformed
+        try {
+            user.closeConnecton();
+        } catch (SQLException ex) {
+            Logger.getLogger(Wellcome.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        userReset r = new userReset();
+        r.setVisible(true);
+        this.setVisible(false);
+    }//GEN-LAST:event_reporButtonActionPerformed
+
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */      
-        
-        
-        
+        /* Set the Nimbus look and feel */
+
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
@@ -247,6 +281,7 @@ String testString = "Please enter the following details";
     private javax.swing.JButton loginButton;
     private javax.swing.JPasswordField password;
     private javax.swing.JLabel passwordLabel;
+    private javax.swing.JButton reporButton;
     private javax.swing.JTextField username;
     private javax.swing.JLabel usernameLabel;
     // End of variables declaration//GEN-END:variables

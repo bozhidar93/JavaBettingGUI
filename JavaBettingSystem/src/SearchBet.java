@@ -1,3 +1,6 @@
+
+import java.sql.SQLException;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -13,10 +16,13 @@ public class SearchBet extends javax.swing.JFrame {
     /**
      * Creates new form SearchBet
      */
-    public SearchBet() {
+    public SearchBet() throws SQLException {
         initComponents();
+        this.setLocationRelativeTo(this);
         //this.jComboBox1.removeAllItems();
          this.jComboBox1.addItem("TEST");
+         user.makeConnection();
+         
          
     }
 
@@ -44,11 +50,22 @@ public class SearchBet extends javax.swing.JFrame {
         });
 
         searchButton.setText("Search");
+        searchButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                searchButtonActionPerformed(evt);
+            }
+        });
 
         exitButton.setText("Exit");
         exitButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 exitButtonActionPerformed(evt);
+            }
+        });
+
+        resultsTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                resultsTextFieldActionPerformed(evt);
             }
         });
 
@@ -90,8 +107,18 @@ public class SearchBet extends javax.swing.JFrame {
     }//GEN-LAST:event_jComboBox1ActionPerformed
 
     private void exitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitButtonActionPerformed
-        this.setVisible(false);
+        this.setVisible(false);        
     }//GEN-LAST:event_exitButtonActionPerformed
+
+    private void resultsTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resultsTextFieldActionPerformed
+        // TODO add your handling code here:
+        this.resultsTextField.setText("dwa");
+    }//GEN-LAST:event_resultsTextFieldActionPerformed
+
+    private void searchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchButtonActionPerformed
+        int r = (int) (Math.random() * (999999 - 1)) + 999999;
+        System.out.println("" + r);
+    }//GEN-LAST:event_searchButtonActionPerformed
 
     /**
      * @param args the command line arguments

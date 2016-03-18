@@ -27,12 +27,6 @@ public class user {
     private static String query;    
 
     public user() {
-        
-        //this.user_ID = user_ID;
-        //this.username = username;
-        //this.password = password;
-        //this.balance = balance;
-
     }
 
     public static void makeConnection() throws SQLException {
@@ -43,6 +37,13 @@ public class user {
             e.printStackTrace();
             System.out.println("ARRR");
         }
+    }
+    
+    public static void closeConnecton() throws SQLException{
+        stmt.close();
+        conn.close();
+        
+        System.out.println("COnnection closed from .closeConnection");
     }
     public static void getAllUsersDetails() throws SQLException{
         System.out.println("Getting all users....");
@@ -56,9 +57,12 @@ public class user {
                 username = rs.getString("username");
                 password = rs.getString("password");
                 balance = rs.getDouble("balance");
+                System.out.println("UserID is " + user_ID);
                 System.out.println("USername is "+username);
                 System.out.println("User password is "+password);
-                System.out.println("User balance is "+balance);
+                System.out.println("User balance is "+balance);                
+                
+                
             }
             
         }catch (Exception e){
@@ -70,12 +74,16 @@ public class user {
             
         }
     }
-    public int getUser_ID() {
-        return user_ID;
+    public static int getUser_ID() {
+        return user_ID; 
     }
+    
 
     public static String getUsername() {
-        return username;
+        return user.username;
+    }
+    public String getUsername1() {
+        return user.username;
     }
 
     public String getPassword() {
@@ -118,26 +126,36 @@ public class user {
         return str;
     }
 
-    public  String validateUSer(String username1, String password1) throws SQLException {
-        this.query = "SELECT * FROM user where username = 'name1' AND password = 'password1'";
+    public static String validateUSer(String username1, String password1) throws SQLException {
+        //this.query = "SELECT * FROM user where username = 'name1' AND password = 'password1'";
+       user.query = "SELECT * FROM user WHERE username = '"+username1+"'AND password = '"+password1+"'";
+        
         user.getAllUsersDetails();
        // if (this.username.matches(username1) & this.password.matches(password1)) {
-       if (this.username.compareTo(username1) == 0 && this.password.compareTo(password1) == 0) {
+       
+       if(user.username!=null || user.password!=null){
+           if (user.username.compareTo(username1) == 0 && user.password.compareTo(password1) == 0) {
             System.out.println("User validated");            
             return "User validated";
-//        } else if (this.user_ID != userID) {
-//            System.out.println("user id doesnt exist");
-//            return false;
-        } else if (this.username.compareTo(username1) !=0) {
-            System.out.println("Username invalid");
-             return "Username invalid";
-        } else if (this.password.compareTo(password1) != 0) {
-            System.out.println("Invalid password");
-            return "Invalid password";
-        } else {
-            System.out.println("OMG SOMETHINGS IS REALLY WRONG");
-            return "OMG SOMETHINGS IS REALLY WRONG";
-        }        
+           }
+//        } else if (user.username.compareTo(username1) !=0) {
+//      // else if (user.username.matches(username1)) {
+//            System.out.println("Username invalid");            
+//             return "Username invalid";
+//        } else if (user.password.compareTo(password1) != 0) {
+//      // else if (user.password.matches(password1)){
+//            System.out.println("Invalid password");            
+//            return "Invalid password";
+//        } else {
+//            System.out.println("ERROR");            
+//            return "ERROR";
+//        } 
+       }
+           return "Invalid username or password. Please try again";  
+       
+       
+       
     }
+    
 
 }

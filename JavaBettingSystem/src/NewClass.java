@@ -44,14 +44,23 @@ public class NewClass {
                 
              // String insert = "INSERT INTO 'user' VALUES ('+user_ID+','"+username+"','"+password+"','+balance+')";
                 //stmt.executeUpdate("INSERT INTO user " + "VALUES (68486, 'na6me1', 'pa6ssword1',9595.54)");  
-                stmt.executeUpdate("INSERT INTO user " + "VALUES ('"+user_ID+"', '"+username+"', '"+password+"',"+balance+")");     
+                int i = 888;
+                int b = 4654;
+                String desc = "testDescr";
+                 String temp2 = "INSERT INTO userProblems " + "VALUES ("+i+", "+b+",'"+desc+"')";  
+                String temp3 = "INSERT INTO useRProblems VALUES (555,4654,'ddd')";
+               stmt.executeUpdate(temp2);
+               //stmt.executeUpdate("INSERT INTO user " + "VALUES ('"+user_ID+"', '"+username+"', '"+password+"',"+balance+")");     
                
                 
                 System.out.println("HEYYY");
             }catch (Exception e){
                 e.printStackTrace();
+                
                 System.out.println("ARRR");
             }
             
         }
+
+  
 }

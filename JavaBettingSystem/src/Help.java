@@ -23,8 +23,12 @@ public class Help extends javax.swing.JFrame {
      */
     private static Connection conn;
     private static Statement stmt = null;
+    
     public Help() {
         initComponents();
+        this.setLocationRelativeTo(this);
+        this.searchField.setText("How can i help you   " + user.getUsername());
+        
     }
 
     /**
@@ -46,6 +50,11 @@ public class Help extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         searchField.setText("How can I help you");
+        searchField.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                searchFieldMouseClicked(evt);
+            }
+        });
         searchField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 searchFieldActionPerformed(evt);
@@ -113,21 +122,19 @@ public class Help extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void searchFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchFieldActionPerformed
-
+ 
         
     }//GEN-LAST:event_searchFieldActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         
-        Wellcome wellcome1 = new Wellcome();
-        wellcome1.setVisible(true);
         this.setVisible(false);
         
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void addBetSearchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addBetSearchButtonActionPerformed
         // TODO add your handling code here:
-                String text;
+                //String text;
         
         try {
             // TODO add your handling code here:
@@ -151,6 +158,10 @@ public class Help extends javax.swing.JFrame {
             Logger.getLogger(Help.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_addBetSearchButtonActionPerformed
+
+    private void searchFieldMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_searchFieldMouseClicked
+        this.searchField.setText("");
+    }//GEN-LAST:event_searchFieldMouseClicked
 
     /**
      * @param args the command line arguments
