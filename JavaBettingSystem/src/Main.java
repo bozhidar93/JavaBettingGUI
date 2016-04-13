@@ -1,7 +1,16 @@
 
+import static java.lang.Double.parseDouble;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static jdk.nashorn.internal.objects.NativeMath.round;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -15,17 +24,29 @@ import java.util.logging.Logger;
  */
 public class Main extends javax.swing.JFrame {
 
-    /**
-     * Creates new form Main
-     */
+    private int checkArray = -1;
+    private int counterForSwitch = 0;
+    private double potentialReturnsOdds;
+    private String executeStatement;
+    private static Connection conn;
+    private static Statement stmt;
+    private double stake1;
+    private int betID = (int) (Math.random() * (99999999 - 1)) + 1;
+    private int multipleBetIndex = 1;
+    private int singleBetIndex = 99999999;
+    private int countNumberOfBets = 0;
+    
+    
     public Main() throws SQLException {
+        
+        user.closeConnecton();
         initComponents();
         this.setLocationRelativeTo(this);
-        user.makeConnection();
-         this.mainWellcomeText.setText(" WELLCOME  " + user.getUsername() + "  your balance is  " + user.getBalance());
-        
-        
-    }
+        //user.makeConnection();
+        this.mainWellcomeText.setText(" WELLCOME  " + user.getUsername() + "  your balance is  " + user.getBalance());
+        //stake1 = Double.parseDouble(this.stakeInput.getText());
+                
+ }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -45,13 +66,14 @@ public class Main extends javax.swing.JFrame {
         mainExit = new javax.swing.JButton();
         mainSearchBet = new javax.swing.JButton();
         mainWellcomeText = new javax.swing.JTextField();
-        mainStake = new javax.swing.JTextField();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        mainTeamsList = new javax.swing.JList<>();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        mainBetList = new javax.swing.JList<>();
+        stakeInput = new javax.swing.JTextField();
         mainPlaceBet = new javax.swing.JButton();
-        jTextField1 = new javax.swing.JTextField();
+        potentialReturnsText = new javax.swing.JTextField();
+        mainTeamList = new java.awt.List();
+        mainBetTypes = new java.awt.List();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        clearButton = new javax.swing.JButton();
 
         jButton3.setText("Add Bet");
 
@@ -60,7 +82,22 @@ public class Main extends javax.swing.JFrame {
         jButton6.setText("Add Bet");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                formMouseEntered(evt);
+            }
+        });
 
+        jPanel1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                jPanel1MouseEntered(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jPanel1MousePressed(evt);
+            }
+        });
+
+        mainAddBet.setFont(new java.awt.Font("Tahoma", 0, 20)); // NOI18N
         mainAddBet.setText("Add Bet");
         mainAddBet.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -68,6 +105,7 @@ public class Main extends javax.swing.JFrame {
             }
         });
 
+        mainHelp.setFont(new java.awt.Font("Tahoma", 0, 20)); // NOI18N
         mainHelp.setText("Help");
         mainHelp.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -75,6 +113,7 @@ public class Main extends javax.swing.JFrame {
             }
         });
 
+        mainExit.setFont(new java.awt.Font("Tahoma", 0, 20)); // NOI18N
         mainExit.setText("Exit");
         mainExit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -82,6 +121,7 @@ public class Main extends javax.swing.JFrame {
             }
         });
 
+        mainSearchBet.setFont(new java.awt.Font("Tahoma", 0, 20)); // NOI18N
         mainSearchBet.setText("Search Bet");
         mainSearchBet.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -89,39 +129,67 @@ public class Main extends javax.swing.JFrame {
             }
         });
 
+        mainWellcomeText.setEditable(false);
+        mainWellcomeText.setBackground(new java.awt.Color(255, 255, 255));
         mainWellcomeText.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 mainWellcomeTextActionPerformed(evt);
             }
         });
 
-        mainStake.setText("Stake Amount");
-        mainStake.addMouseListener(new java.awt.event.MouseAdapter() {
+        stakeInput.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 mouseClick1(evt);
             }
         });
-
-        mainTeamsList.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
-        jScrollPane1.setViewportView(mainTeamsList);
-
-        mainBetList.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "SIngle", "Double", "Treble" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
-        jScrollPane2.setViewportView(mainBetList);
-
-        mainPlaceBet.setText("Place Bet");
-
-        jTextField1.setText("Returns");
-        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+        stakeInput.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField1ActionPerformed(evt);
+                stakeInputActionPerformed(evt);
+            }
+        });
+
+        mainPlaceBet.setFont(new java.awt.Font("Tahoma", 0, 21)); // NOI18N
+        mainPlaceBet.setText("Place Bet");
+        mainPlaceBet.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mainPlaceBetActionPerformed(evt);
+            }
+        });
+
+        potentialReturnsText.setEditable(false);
+        potentialReturnsText.setBackground(new java.awt.Color(255, 255, 255));
+        potentialReturnsText.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                potentialReturnsTextActionPerformed(evt);
+            }
+        });
+
+        mainTeamList.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        mainTeamList.setMultipleMode(true);
+        mainTeamList.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                mainTeamListMouseClicked(evt);
+            }
+        });
+        mainTeamList.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mainTeamListActionPerformed(evt);
+            }
+        });
+
+        mainBetTypes.setName(""); // NOI18N
+
+        jLabel1.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
+        jLabel1.setText("Stake Amount:");
+
+        jLabel2.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
+        jLabel2.setText("Your Potentual Returns");
+
+        clearButton.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        clearButton.setText("Clear Bet Section");
+        clearButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                clearButtonActionPerformed(evt);
             }
         });
 
@@ -130,75 +198,84 @@ public class Main extends javax.swing.JFrame {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(28, 28, 28)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(mainWellcomeText)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(mainAddBet, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(mainTeamList, javax.swing.GroupLayout.PREFERRED_SIZE, 207, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(mainSearchBet, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(mainBetTypes, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(mainHelp, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(mainExit, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addComponent(jScrollPane1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGroup(jPanel1Layout.createSequentialGroup()
-                                    .addComponent(mainStake, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(mainPlaceBet, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))))
+                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel2)
+                            .addComponent(clearButton))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(potentialReturnsText)
+                            .addComponent(stakeInput)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(mainPlaceBet))))
+                    .addComponent(mainWellcomeText, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(mainAddBet, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(mainSearchBet, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(47, 47, 47)
+                        .addComponent(mainHelp, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(26, 26, 26)
+                        .addComponent(mainExit, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE, false)
                     .addComponent(mainHelp, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(mainExit, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(mainSearchBet, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(mainAddBet, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(mainExit, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(mainAddBet, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(18, 18, 18)
                 .addComponent(mainWellcomeText, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(10, 10, 10)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(mainStake)
-                            .addComponent(mainPlaceBet, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(25, 25, 25)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(stakeInput, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel1))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(potentialReturnsText, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel2))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 86, Short.MAX_VALUE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(mainPlaceBet, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(clearButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(40, 40, 40))
+                    .addComponent(mainTeamList, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(mainBetTypes, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
+
+        mainBetTypes.getAccessibleContext().setAccessibleName("");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void mouseClick1(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_mouseClick1
-        // TODO add your handling code here:
-        this.mainStake.setText("");       
-        
-    }//GEN-LAST:event_mouseClick1
 
     private void mainWellcomeTextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mainWellcomeTextActionPerformed
         // TODO add your handling code here:
@@ -213,16 +290,20 @@ public class Main extends javax.swing.JFrame {
 
     private void mainHelpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mainHelpActionPerformed
         // TODO add your handling code here:
-        this.setVisible(false);
+        //this.setVisible(false);
         Help h = new Help();
         h.setVisible(true);
     }//GEN-LAST:event_mainHelpActionPerformed
 
     private void mainAddBetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mainAddBetActionPerformed
-        // TODO add your handling code here:
-        this.setVisible(false);
-        AddBet addBet = new AddBet();
-        addBet.setVisible(true);
+        AddBet addBet;
+        try {
+            addBet = new AddBet();
+            addBet.setVisible(true);
+        } catch (SQLException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
     }//GEN-LAST:event_mainAddBetActionPerformed
 
     private void mainSearchBetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mainSearchBetActionPerformed
@@ -236,28 +317,209 @@ public class Main extends javax.swing.JFrame {
         
     }//GEN-LAST:event_mainSearchBetActionPerformed
 
-    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+    private void jPanel1MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel1MousePressed
+        
+    }//GEN-LAST:event_jPanel1MousePressed
+
+    private void formMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseEntered
+       
+    }//GEN-LAST:event_formMouseEntered
+
+    private void potentialReturnsTextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_potentialReturnsTextActionPerformed
+        
+    }//GEN-LAST:event_potentialReturnsTextActionPerformed
+
+    private void mouseClick1(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_mouseClick1
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField1ActionPerformed
+        this.stakeInput.setText("");
+
+    }//GEN-LAST:event_mouseClick1
+
+    private void stakeInputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stakeInputActionPerformed
+        
+    }//GEN-LAST:event_stakeInputActionPerformed
+
+    private void mainTeamListActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mainTeamListActionPerformed
+       
+    }//GEN-LAST:event_mainTeamListActionPerformed
+
+    private void jPanel1MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel1MouseEntered
+
+               if( checkArray < AddBet.arrayInteger){
+               mainTeamList.add(AddBet.betList[AddBet.arrayInteger].getBet1(), AddBet.arrayInteger);
+               checkArray++;
+               }
+               if(counterForSwitch < mainTeamList.getItemCount()){
+               switch (mainTeamList.getItemCount()) {
+                   case 1:
+                       mainBetTypes.add("Single", 0);              
+                     counterForSwitch++;
+                     countNumberOfBets++;
+                       break;                           
+                   case 2:
+                       mainBetTypes.add("Double", 1);
+                       counterForSwitch++;
+                       countNumberOfBets++;
+                       break;
+                   case 3:
+                       mainBetTypes.add("Treble", 2);
+                       counterForSwitch++;
+                       countNumberOfBets++;
+                       break;
+                   case 4:
+                       mainBetTypes.add("Fourfold", 3);
+                       counterForSwitch++;
+                       countNumberOfBets++;
+                       break;
+                   case 5:
+                       mainBetTypes.add("Fivefold", 4);
+                       counterForSwitch++;
+                       countNumberOfBets++;
+                       break;
+                   case 6:
+                       mainBetTypes.add("Sixfold", 5);
+                       counterForSwitch++;
+                       countNumberOfBets++;
+                       break;
+                   default:
+                       System.out.println("..");
+                       break;
+
+               }
+               }
+                 if(stakeInput.getText().equals("") == false){ 
+                     double c =1.00;
+                 int[] selectedItems = mainTeamList.getSelectedIndexes();                  
+                 for(int i = 0; i<selectedItems.length;i++){                     
+                 //    double c =1.00;
+                    potentialReturnsOdds = 1.00;
+                   // round(potentialReturnsOdds, 2); 
+                     System.out.println("111111111111111   "+potentialReturnsOdds + "<>" + c);
+                     c = c*AddBet.betList[i].getOdds1();
+                     System.out.println("AddBet.betList[i].getOdds1();    " + AddBet.betList[i].getOdds1());
+                     System.out.println("222222222222222   " + c);
+                      round(c, 2); 
+                      System.out.println("33333333333333   " + c);
+                     potentialReturnsOdds = c;
+                     round(potentialReturnsOdds, 2);  
+                     System.out.println("44444444444444   " + potentialReturnsOdds);
+                 }
+                 this.potentialReturnsText.setText("Potentual Returs");
+                 stake1 = 1.00;
+                 stake1 = stake1*Double.parseDouble(stakeInput.getText());
+                round(stake1, 2);
+                     System.out.println("5555555555555stake1  " + stake1);
+                     System.out.println("666666666666666potentialReturnsOdds + " +potentialReturnsOdds);
+                round(potentialReturnsOdds,2);
+                     System.out.println("77777777777777777     + ..    " +potentialReturnsOdds);                     
+                double d =stake1*potentialReturnsOdds;
+                round(d, 2);
+                     System.out.println("88888888888888888double d  " +d);                
+                round(d, 2);
+                System.out.println("99999999999999     " +d);
+                round(d, 2);
+                  System.out.println("1010101010      " +d);                     
+                 this.potentialReturnsText.setText(""+d);
+               }
+              
+    }//GEN-LAST:event_jPanel1MouseEntered
+
+    private void mainPlaceBetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mainPlaceBetActionPerformed
+       if(stakeInput.getText().equals("") == false){
+        String betStatus = "";
+        int bet_returns = 0;
+        stake1 = 1;
+        stake1 = Double.parseDouble(stakeInput.getText());
+        round(stake1, 2);
+        try {
+            conn = DriverManager.getConnection(user.getConnectionURL(), user.getConnectionUsername(), user.getConnectionPassword());
+            stmt = conn.createStatement();
+        } catch (SQLException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        try {
+            ResultSet rs = stmt.executeQuery("SELECT multipleBetIndex FROM Bet");
+            while (rs.next()) {
+                if (multipleBetIndex == rs.getInt("multipleBetIndex")) {
+                    multipleBetIndex++;
+                }
+                if (singleBetIndex == rs.getInt("multipleBetIndex")) {
+                    singleBetIndex--;
+                }
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        System.out.println("multipleBetIndex ID " + multipleBetIndex);
+        System.out.println("singleBetIndex ID " + singleBetIndex);
+
+        try {
+           for(int x= 0;x<countNumberOfBets;x++){
+               java.sql.Timestamp date = new java.sql.Timestamp(new java.util.Date().getTime());
+               System.out.println("data" + date);
+               System.out.println("X" + x);
+               System.out.println("countNumberOfBets" + countNumberOfBets);
+               if(countNumberOfBets ==1){               
+            System.out.println("CREATING A BET WITH BETID " + AddBet.betList[x].getBetID1() + "USER ID " + user.getUser_ID() + "GAME ID" + AddBet.betList[x].getGameID1() + "TEAM1 " + AddBet.betList[x].getTeam11() + "TEAM2 " + AddBet.betList[x].getTeam21() + "BET" + AddBet.betList[x].getBet1() + "STAKE" + stake1 + "potentialReturnsOdds" + potentialReturnsOdds + "betStatus" + betStatus + "bet_returns " + bet_returns + "singleBetIndex" + singleBetIndex+ "date  "+ date);
+            executeStatement = "INSERT INTO Bet " + "VALUES (" + AddBet.betList[x].getBetID1() + "," + user.getUser_ID() + "," + AddBet.betList[x].getGameID1() + ",'" + AddBet.betList[x].getTeam11() + "','" + AddBet.betList[x].getTeam21() + "','" + AddBet.betList[x].getBet1() + "'," + stake1 + "," + potentialReturnsOdds + ",'" + betStatus + "'," + bet_returns + "," + singleBetIndex+",'"+date + "')";
+            stmt.executeUpdate(executeStatement);
+               }
+               else{
+                   System.out.println("I AM HERE<<<<<<<<<<<<>>>>>>>>>>>>>>>>>" + x);
+            System.out.println("CREATING A BET WITH BETID " + AddBet.betList[x].getBetID1() + "USER ID " + user.getUser_ID() + "GAME ID" + AddBet.betList[x].getGameID1() + "TEAM1 " + AddBet.betList[x].getTeam11() + "TEAM2 " + AddBet.betList[x].getTeam21() + "BET" + AddBet.betList[x].getBet1() + "STAKE" + stake1 + "potentialReturnsOdds" + potentialReturnsOdds + "betStatus" + betStatus + "bet_returns " + bet_returns + "multipleBetIndex" + multipleBetIndex+ "date " + date);
+            executeStatement = "INSERT INTO Bet " + "VALUES (" + AddBet.betList[x].getBetID1() + "," + user.getUser_ID() + "," + AddBet.betList[x].getGameID1() + ",'" + AddBet.betList[x].getTeam11() + "','" + AddBet.betList[x].getTeam21() + "','" + AddBet.betList[x].getBet1() + "'," + stake1 + "," + potentialReturnsOdds + ",'" + betStatus + "'," + bet_returns + "," + multipleBetIndex+",'"+date + "')";
+            stmt.executeUpdate(executeStatement);
+            
+               
+           }
+           }
+            //    this.success.setText("Request send seccesfully and wil be resolved shortly.");
+        } catch (SQLException ex) {
+            System.out.println("executeUpdateERRROOOR");
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        try {
+            user.closeConnecton();
+        } catch (SQLException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+       }
+       else{
+           this.stakeInput.setText("PLEASE ENTER STAKE");
+       }
+
+    }//GEN-LAST:event_mainPlaceBetActionPerformed
+
+    private void mainTeamListMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_mainTeamListMouseClicked
+        
+    }//GEN-LAST:event_mainTeamListMouseClicked
+
+    private void clearButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearButtonActionPerformed
+        this.mainTeamList.removeAll();
+        this.mainBetTypes.removeAll();
+        counterForSwitch = 0;
+    }//GEN-LAST:event_clearButtonActionPerformed
 
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton clearButton;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JButton mainAddBet;
-    private javax.swing.JList<String> mainBetList;
+    private java.awt.List mainBetTypes;
     private javax.swing.JButton mainExit;
     private javax.swing.JButton mainHelp;
     private javax.swing.JButton mainPlaceBet;
     private javax.swing.JButton mainSearchBet;
-    private javax.swing.JTextField mainStake;
-    private javax.swing.JList<String> mainTeamsList;
+    private java.awt.List mainTeamList;
     private javax.swing.JTextField mainWellcomeText;
+    private javax.swing.JTextField potentialReturnsText;
+    private javax.swing.JTextField stakeInput;
     // End of variables declaration//GEN-END:variables
 }

@@ -8,6 +8,7 @@ import java.sql.DriverManager;
 import java.sql.*;
 import static javafx.beans.binding.Bindings.select;
 
+
 /**
  *
  * @author bozhidar
@@ -18,10 +19,15 @@ public class user {
     private static String username;
     private static String  password;
     private static double balance;
-    private static final String USERNAME = "b4a0b236938a80";
-    private static final String PASSWORD = "f0e9b6fd";
-    private static final String str = "jdbc:mysql://eu-cdbr-azure-north-d.cloudapp.net:3306/b.tashev?zeroDateTimeBehavior=convertToNull";
-    private static Statement stmt = null;
+    private static int secredKey;
+    private static final String USERNAME = "bc55432548644e";
+    private static final String PASSWORD ="8c3bf9ae";
+    private static final String str = "jdbc:mysql://eu-cdbr-azure-north-e.cloudapp.net:3306/btashevDatabase?zeroDateTimeBehavior=convertToNull";
+    //jdbc:mysql://eu-cdbr-azure-north-e.cloudapp.net:3306/btashevDatabase?zeroDateTimeBehavior=convertToNull [bc55432548644e on Default schema]
+    
+   // private static final String str = "jdbc:sqlserver://tashevserver.database.windows.net:1433;database=btashev;user=btashev@tashevserver;password={Myproject1};encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;";
+            
+            private static Statement stmt = null;
     private static Connection conn = null;
     //private static final String query = "SELECT * FROM user";
     private static String query;    
@@ -32,6 +38,7 @@ public class user {
     public static void makeConnection() throws SQLException {
         try {
             conn = DriverManager.getConnection(str,USERNAME, PASSWORD);
+            //conn = DriverManager.getConnection(str);
             System.out.println("Connected");
         } catch (Exception e) {
             e.printStackTrace();
@@ -49,6 +56,7 @@ public class user {
         System.out.println("Getting all users....");
         //String getAllUser = "SELECT * FROM user";
         conn = DriverManager.getConnection(str,USERNAME, PASSWORD);
+        //conn = DriverManager.getConnection(str);
         try{
             stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(user.query);
@@ -57,10 +65,12 @@ public class user {
                 username = rs.getString("username");
                 password = rs.getString("password");
                 balance = rs.getDouble("balance");
+                secredKey = rs.getInt("secretKey");
                 System.out.println("UserID is " + user_ID);
                 System.out.println("USername is "+username);
                 System.out.println("User password is "+password);
-                System.out.println("User balance is "+balance);                
+                System.out.println("User balance is "+balance); 
+                System.out.println("User secred key:" + secredKey);
                 
                 
             }
@@ -69,8 +79,9 @@ public class user {
                 e.printStackTrace();
                 System.out.println("ARRR");
             } finally {
-        if (stmt != null) { stmt.close(); }
-    
+        if (stmt != null) { 
+            stmt.close(); }
+            conn.close();
             
         }
     }

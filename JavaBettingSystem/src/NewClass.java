@@ -3,6 +3,7 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import static javafx.beans.binding.Bindings.select;
 
 /*
@@ -16,11 +17,13 @@ import static javafx.beans.binding.Bindings.select;
  * @author bozhidar
  */
 public class NewClass {
-                private static final String USERNAME = "b4a0b236938a80";
-                private static final String PASSWORD ="f0e9b6fd";
+                private static final String USERNAME = "bc55432548644e";
+                private static final String PASSWORD ="8c3bf9ae";
                 private static final String url ="Database=b.tashev;Data Source=eu-cdbr-azure-north-d.cloudapp.net;User Id=b4a0b236938a80;Password=f0e9b6fd";
                 private static final String url2 ="eu-cdbr-azure-north-d.cloudapp.net";
                 private static final String str = "jdbc:mysql://eu-cdbr-azure-north-d.cloudapp.net:3306/b.tashev?zeroDateTimeBehavior=convertToNull";
+                private static final String st = "jdbc:mysql://eu-cdbr-azure-north-e.cloudapp.net:3306/btashevDatabase?zeroDateTimeBehavior=convertToNull";
+                private static final String lll = "jdbc:sqlserver://tashevserver.database.windows.net:1433;database=btashev;user=btashev@tashevserver;password=Myproject1;encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;ssl=require;";
                 private static Statement stmt = null;
                 private static String query =  "SELECT * FROM user";
  
@@ -32,7 +35,7 @@ public class NewClass {
             Connection conn = null;
             
             try{               
-               conn = DriverManager.getConnection(str,USERNAME,PASSWORD);             
+               conn = DriverManager.getConnection(st,USERNAME,PASSWORD);             
                 System.out.println(query);
               stmt =conn.createStatement();
               ResultSet rs = stmt.executeQuery(query);
@@ -43,13 +46,21 @@ public class NewClass {
               //String insert = "INSERT INTO 'btashev'.'user' VALUES ('"+user_ID+"','"+username+"','"+password+"','"+balance+"')";
                 
              // String insert = "INSERT INTO 'user' VALUES ('+user_ID+','"+username+"','"+password+"','+balance+')";
-                //stmt.executeUpdate("INSERT INTO user " + "VALUES (68486, 'na6me1', 'pa6ssword1',9595.54)");  
-                int i = 888;
-                int b = 4654;
-                String desc = "testDescr";
-                 String temp2 = "INSERT INTO userProblems " + "VALUES ("+i+", "+b+",'"+desc+"')";  
-                String temp3 = "INSERT INTO useRProblems VALUES (555,4654,'ddd')";
-               stmt.executeUpdate(temp2);
+                stmt.executeUpdate("INSERT INTO user " + "VALUES (6284286, 'n06mae21', 'pa6ssw2ord1',9595.54,55.5)");  
+                java.sql.Timestamp date = new java.sql.Timestamp(new java.util.Date().getTime());
+                
+              
+               
+              // SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm");
+               SimpleDateFormat noMilliSecondsFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                
+                System.out.println("sdf!!!!" + noMilliSecondsFormatter);
+//                int i = 888;
+//                int b = 4654;
+//                String desc = "testDescr";
+//                 String temp2 = "INSERT INTO userProblems " + "VALUES ("+i+", "+b+",'"+desc+"')";  
+//                String temp3 = "INSERT INTO useRProblems VALUES (555,4654,'ddd')";
+//               stmt.executeUpdate(temp2);
                //stmt.executeUpdate("INSERT INTO user " + "VALUES ('"+user_ID+"', '"+username+"', '"+password+"',"+balance+")");     
                
                 

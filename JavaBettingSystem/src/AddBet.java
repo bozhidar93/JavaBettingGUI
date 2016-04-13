@@ -2,6 +2,7 @@
 import java.sql.Connection;
 import java.sql.Statement;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,20 +21,36 @@ public class AddBet extends javax.swing.JFrame {
     /**
      * Creates new form AddBet
      */
+    
     private static Connection conn;
     private static Statement stmt = null;
+    private String team1;
+    private String team2;
+    private String bet;
+    private int gameID;
+    private double finalOdds;
+    private int[] tempgameID = new int[10];
     private double[] homeOdds = new double[10];
     private double[] drawOdds = new double[10];
     private double[] awayOdds = new double[10];
     private String[] listOfTeams = new String[10];
+    public static bets[] betList = new bets[6];    
+    public static int arrayInteger = -1;
+   // public ArrayList<String>elements=new ArrayList<>();
     // private String temp;
     //private String home;
     //private String away;
-
-    public AddBet() {
-
+    
+    public AddBet() throws SQLException {
+        user.closeConnecton();
         initComponents();
         this.setLocationRelativeTo(this);
+//        AddBet.betList[0] = null;
+//        AddBet.betList[1] = null;
+//        AddBet.betList[2] = null;
+//        AddBet.betList[3] = null;
+//        AddBet.betList[4] = null;
+//        AddBet.betList[5] = null;
 
     }
 
@@ -48,31 +65,37 @@ public class AddBet extends javax.swing.JFrame {
 
         jPanel1 = new javax.swing.JPanel();
         addBetSearchField = new javax.swing.JTextField();
-        addBetSearchButton = new javax.swing.JButton();
+        search = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         jTextField1 = new javax.swing.JTextField();
         list1 = new java.awt.List();
         list2 = new java.awt.List();
-        jButton2 = new javax.swing.JButton();
+        backButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setPreferredSize(new java.awt.Dimension(684, 479));
 
         addBetSearchField.setText("Team name");
+        addBetSearchField.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                addBetSearchFieldMouseClicked(evt);
+            }
+        });
         addBetSearchField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 addBetSearchFieldActionPerformed(evt);
             }
         });
 
-        addBetSearchButton.setText("Search");
-        addBetSearchButton.addActionListener(new java.awt.event.ActionListener() {
+        search.setText("Search");
+        search.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addBetSearchButtonActionPerformed(evt);
+                searchActionPerformed(evt);
             }
         });
 
+        jLabel1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel1.setText("Bet Types Available");
 
         jButton1.setText("Add Bet");
@@ -95,6 +118,11 @@ public class AddBet extends javax.swing.JFrame {
                 list1MouseClicked(evt);
             }
         });
+        list1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                list1ActionPerformed(evt);
+            }
+        });
 
         list2.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -107,178 +135,122 @@ public class AddBet extends javax.swing.JFrame {
             }
         });
 
+        backButton.setText("Back");
+        backButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                backButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(addBetSearchField, javax.swing.GroupLayout.DEFAULT_SIZE, 343, Short.MAX_VALUE)
+                    .addComponent(list1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 67, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(list1, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(25, 25, 25)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jTextField1)
-                                .addGap(18, 18, 18)
-                                .addComponent(jButton1))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(list2, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 27, Short.MAX_VALUE))))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(addBetSearchField, javax.swing.GroupLayout.PREFERRED_SIZE, 278, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(addBetSearchButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addContainerGap())
+                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 233, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addGroup(jPanel1Layout.createSequentialGroup()
+                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(list2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                            .addGap(9, 9, 9)
+                            .addComponent(search, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(backButton, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addGap(32, 32, 32))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(addBetSearchField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(addBetSearchButton, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(addBetSearchField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(search, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(backButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(list2, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(list2, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jButton1)
-                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(list1, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(26, Short.MAX_VALUE))
+                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 72, Short.MAX_VALUE))
+                    .addComponent(list1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         list1.getAccessibleContext().setAccessibleName("");
-
-        jButton2.setText("jButton2");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
-            }
-        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(24, 24, 24)
-                .addComponent(jButton2)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(49, 49, 49)
-                .addComponent(jButton2)
-                .addContainerGap(27, Short.MAX_VALUE))
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void addBetSearchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addBetSearchButtonActionPerformed
-        this.list1.removeAll();
-        this.list2.removeAll();
-        int i = -1;
-        String str = this.addBetSearchField.getText();
+    private void backButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backButtonActionPerformed
         try {
-            user.makeConnection();
-            conn = DriverManager.getConnection(user.getConnectionURL(), user.getConnectionUsername(), user.getConnectionPassword());
-            stmt = conn.createStatement();
-            this.jTextField1.setText("HELLO");
-            ResultSet resSet = stmt.executeQuery("SELECT * FROM footbalmatches WHERE team1 = '" + str + "' OR team2 = '" + str + "'");
-            System.out.println("resSet.getFetchSize()" + resSet.getFetchSize());
-            while (resSet.next()) {
-                i++;
-
-                System.out.println("helloo i am i " + i);
-//                temp = resSet.getString("team1");
-//                temp += "  vs   ";
-//                temp += resSet.getString("team2");
-                listOfTeams[i] = resSet.getString("team1") + "  vs   " + resSet.getString("team2");
-                homeOdds[i] = resSet.getDouble("team1Odds");
-                drawOdds[i] = resSet.getDouble("drawOdds");
-                awayOdds[i] = resSet.getDouble("team2Odds");
-                this.list1.add(listOfTeams[i], i);
-
-                //this.list1.add(temp, 1);
-//                home = temp.substring(0, temp.indexOf("  vs"));                
-//                away = temp.substring(temp.lastIndexOf("vs   ") + 5);                
-//                this.list2.add(home, 0);
-//                this.list2.add("draw", 1);
-//                this.list2.add(away, 2);
-            }
-
-            stmt.close();
-            conn.close();
-
+            user.closeConnecton();
         } catch (SQLException ex) {
             Logger.getLogger(AddBet.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-
-    }//GEN-LAST:event_addBetSearchButtonActionPerformed
-
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-
-        System.out.println(Arrays.toString(listOfTeams));
-        System.out.println(Arrays.toString(homeOdds));
-        System.out.println(Arrays.toString(awayOdds));
-        System.out.println(Arrays.toString(drawOdds));
-        System.out.println("list1Index   " + list1.getSelectedIndex());
-        System.out.println("list2Index   " + list2.getSelectedIndex());
-        System.out.println("list2things!!!" + list2.getSelectedItem() + "!!!!");
-
-
-    }//GEN-LAST:event_jButton2ActionPerformed
+        this.setVisible(false);
+    }//GEN-LAST:event_backButtonActionPerformed
 
     private void list2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_list2ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_list2ActionPerformed
 
-    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField1ActionPerformed
-
     private void list2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_list2MouseClicked
-//        if (this.list2.getSelectedItem() == home){
-//            this.jTextField1.setText("odds " + homeOdds[this.list1.getSelectedIndex()+1]);            
-//        }
-//        else if (this.list2.getSelectedItem() == away){
-//            this.jTextField1.setText("odds " + awayOdds[this.list1.getSelectedIndex()+1]); 
-//        }
-//        else if (this.list2.getSelectedItem() == "draw"){
-//            this.jTextField1.setText("odds " + drawOdds[this.list1.getSelectedIndex()+1]); 
-//        }
-
         if (this.list2.getSelectedIndex() == 0) {
             // then its home
+
             this.jTextField1.setText("odds" + homeOdds[this.list1.getSelectedIndex()]);
+            finalOdds = homeOdds[this.list1.getSelectedIndex()];
         } else if (this.list2.getSelectedIndex() == 1) {
             // then its draw
             this.jTextField1.setText("odds" + drawOdds[this.list1.getSelectedIndex()]);
+            finalOdds = drawOdds[this.list1.getSelectedIndex()];
         } else if (this.list2.getSelectedIndex() == 2) {
             // then its away
+
             this.jTextField1.setText("odds" + awayOdds[this.list1.getSelectedIndex()]);
+            finalOdds = awayOdds[this.list1.getSelectedIndex()];
         }
 
-
     }//GEN-LAST:event_list2MouseClicked
+
+    private void list1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_list1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_list1ActionPerformed
 
     private void list1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_list1MouseClicked
         this.list2.removeAll();
         String t1;
         t1 = this.list1.getSelectedItem();
-        // home = t1.substring(0, t1.indexOf("  vs"));                
-        //  away = t1.substring(t1.lastIndexOf("vs   ") + 5);  
+        // home = t1.substring(0, t1.indexOf("  vs"));
+        //  away = t1.substring(t1.lastIndexOf("vs   ") + 5);
         System.out.println("t1" + t1);
 
         this.list2.add(t1.substring(0, t1.indexOf("  vs")), 0);
@@ -286,27 +258,128 @@ public class AddBet extends javax.swing.JFrame {
         this.list2.add(t1.substring(t1.lastIndexOf("vs   ") + 5), 2);
     }//GEN-LAST:event_list1MouseClicked
 
-    private void addBetSearchFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addBetSearchFieldActionPerformed
-        this.addBetSearchField.setText("");
-    }//GEN-LAST:event_addBetSearchFieldActionPerformed
+    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField1ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
 
+        this.team1 = list2.getItem(0);
+        this.team2 = list2.getItem(2);
+        int randomNumber = (int) (Math.random() * (99999999 - 1)) + 1;
+        bet = this.list2.getSelectedItem() + " to win";
+        gameID = tempgameID[list1.getSelectedIndex()];
+        System.out.println("betID" + randomNumber);
+        System.out.println("final game ID" + gameID);
+        System.out.println("team1" + team1);
+        System.out.println("team2" + team2);
+        System.out.println("bet ="+ bet);
+        System.out.println("odds" + finalOdds);
+        System.out.println("<<<<>>>");
+        System.out.println("CREATING A BET WITH BETID " + randomNumber + "USER ID " + user.getUser_ID() + "GAME ID"  + gameID + "TEAM1 " + team1 + "TEAM2 " + team2 + "BET" + bet);
+        System.out.println("<<<>>>");
+        bets b1 = new bets(randomNumber,user.getUser_ID(),gameID,team1,team2,bet,finalOdds);
+        System.out.println("/////" + AddBet.arrayInteger);
+        AddBet.arrayInteger++;
+        System.out.println("/////>>" + AddBet.arrayInteger);
+        System.out.println("<<>>>");
+        System.out.println("JJJJJJJJJJJJJJJJJJJJJJJJJJJJ" + b1.getBet1());
+        //AddBet.betList[i] = b1;
+        //       for(int i =0;i<6;i++){
+            //
+            //           if(AddBet.betList[i] == null){
+                //             AddBet.betList[i] = new bets(randomNumber,user.getUser_ID(),gameID,team1,team2,bet,finalOdds);
+                //             i = 6;
+                //           }
+            //           System.out.println("I cannot find null");
+            //       }
+
+        AddBet.betList[AddBet.arrayInteger] = b1;
+        //   elements.add(b1.toString());
+        //    System.out.println(elements.toString());
+        for(int x = 0;x<=AddBet.arrayInteger;x++){
+            System.out.println("<><><><<><><><><><><<><"  + AddBet.betList[x].getBet1());
+        }
+        //System.out.println(AddBet.betList.toString());
+        try {
+            user.closeConnecton();
+        } catch (SQLException ex) {
+            Logger.getLogger(AddBet.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        this.setVisible(false);
+
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void searchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchActionPerformed
+        this.list1.removeAll();
+        this.list2.removeAll();
+        int i = -1;
+        String str = this.addBetSearchField.getText();
+        str.toUpperCase();
+        try {
+            user.makeConnection();
+            conn = DriverManager.getConnection(user.getConnectionURL(), user.getConnectionUsername(), user.getConnectionPassword());
+            stmt = conn.createStatement();
+            // this.jTextField1.setText("HELLO");
+            ResultSet resSet = stmt.executeQuery("SELECT * FROM footbalmatches WHERE team1 = '" + str + "' OR team2 = '" + str + "'");
+            System.out.println("resSet.getFetchSize()" + resSet.getFetchSize());
+            while (resSet.next()) {
+                i++;
+
+                System.out.println("helloo i am i " + i);
+                //                temp = resSet.getString("team1");
+                //                temp += "  vs   ";
+                //                temp += resSet.getString("team2");
+                listOfTeams[i] = resSet.getString("team1") + "  vs   " + resSet.getString("team2");
+                homeOdds[i] = resSet.getDouble("team1Odds");
+                drawOdds[i] = resSet.getDouble("drawOdds");
+                awayOdds[i] = resSet.getDouble("team2Odds");
+                tempgameID[i] = resSet.getInt("gameID");
+                this.list1.add(listOfTeams[i], i);
+
+                //this.list1.add(temp, 1);
+                //                home = temp.substring(0, temp.indexOf("  vs"));
+                //                away = temp.substring(temp.lastIndexOf("vs   ") + 5);
+                //                this.list2.add(home, 0);
+                //                this.list2.add("draw", 1);
+                //                this.list2.add(away, 2);
+            }
+
+            stmt.close();
+            conn.close();
+
+            user.closeConnecton();
+            if ( conn != null ){
+                conn.close();
+            }
+
+        } catch (SQLException ex) {
+            Logger.getLogger(AddBet.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }//GEN-LAST:event_searchActionPerformed
+
+    private void addBetSearchFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addBetSearchFieldActionPerformed
+
+    }//GEN-LAST:event_addBetSearchFieldActionPerformed
+
+    private void addBetSearchFieldMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_addBetSearchFieldMouseClicked
+        this.addBetSearchField.setText("");
+    }//GEN-LAST:event_addBetSearchFieldMouseClicked
 
     /**
      * @param args the command line arguments
      */
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton addBetSearchButton;
     private javax.swing.JTextField addBetSearchField;
+    private javax.swing.JButton backButton;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JTextField jTextField1;
     private java.awt.List list1;
     private java.awt.List list2;
+    private javax.swing.JButton search;
     // End of variables declaration//GEN-END:variables
 }
